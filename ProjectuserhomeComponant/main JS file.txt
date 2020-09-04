@@ -1,0 +1,47 @@
+const express = require("express");
+const Promise = require("bluebird");
+const mysql = require("mysql");
+const add =  require("./addqoute");
+const show = require("./showqoute");
+
+Promise.promisifyAll(require("mysql/lib/Connection").prototype);
+Promise.promisifyAll(require("mysql/lib/Pool").prototype);
+
+const cors = require("cors");
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+const DB_CONFIG = {
+    host: "localhost",
+    user: "root",
+    password: "",
+    database: "qoute",
+  };
+  
+app.post("/addqoute", async (req, res) => {
+  try {
+      // const input = req.query;
+      const input = req.body;
+      const resdata = await add.addqoute(input);
+      const json = { message: "sucessfully inserted", Id: resdata };
+      res.json(json);
+
+  } catch (err) {
+      const json = { message: "error" };
+      res.json(json);
+  }
+});
+
+
+app.get("/showqoute", async (req, res) => {
+  try {
+    const results = await show.showqoute();
+
+    res.json(results);
+  } catch (err) {
+    const json = { message: "Failure" };
+    res.json(json);
+  }
+});
+app.listen(3000);
